@@ -16,6 +16,7 @@ public class CollectionController {
 
     @GetMapping("/collections/category")
     public List<Collection> getCollectionByCategoryId(@RequestParam int categoryId) {
+        System.out.println("### CALLED");
         return this.collectionRepository.findByCategoryId(categoryId);
     }
 }
