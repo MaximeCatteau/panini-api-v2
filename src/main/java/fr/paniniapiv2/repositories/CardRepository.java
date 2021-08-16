@@ -3,6 +3,7 @@ package fr.paniniapiv2.repositories;
 import fr.paniniapiv2.db.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> getAllPlayerCards(Long playerId);
 
     @Query(nativeQuery = true, value = "select * from card c where collection_id = :collectionId and id in (select card_id from player_card pc where pc.player_id = :playerId)")
-    List<Card> getPlayerCardsByCollectionId(Long playerId, int collectionId);
+    List<Card> getPlayerCardsByCollectionId(@Param(value = "playerId") Long playerId, @Param(value = "collectionId") int collectionId);
 
     Integer countByCollectionId(int collectionId);
 }
