@@ -1,0 +1,1 @@
+web: java -Dserver.port=$PORT -jar target/panini-api-v2-0.0.1-RELEASE.jar
