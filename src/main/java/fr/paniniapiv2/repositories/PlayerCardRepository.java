@@ -1,6 +1,5 @@
 package fr.paniniapiv2.repositories;
 
-import fr.paniniapiv2.db.Collection;
 import fr.paniniapiv2.db.PlayerCard;
 import org.springframework.data.jpa.repository.JpaRepository;
 

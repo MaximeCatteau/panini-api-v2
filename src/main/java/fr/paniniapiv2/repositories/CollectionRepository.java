@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface CollectionRepository extends JpaRepository<Collection, Integer> {
     List<Collection> findByCategoryId(int categoryId);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM collection WHERE price = 0.0")
+    List<Collection> getFreeCollections();
 }

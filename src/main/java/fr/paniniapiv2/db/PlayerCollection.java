@@ -6,19 +6,15 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "collection")
+@Table(name = "playerCollection")
 @Getter
 @Setter
-public class Collection {
+public class PlayerCollection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    private Long playerId;
 
-    private Integer categoryId;
-
-    private String imageUrl;
-
-    private double price = 0.0;
+    private Integer collectionId;
 }
