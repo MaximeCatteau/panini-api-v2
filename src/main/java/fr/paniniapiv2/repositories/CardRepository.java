@@ -10,8 +10,8 @@ import java.util.List;
 public interface CardRepository extends JpaRepository<Card, Long> {
     Card findById(int id);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM card ORDER BY RANDOM() LIMIT 1")
-    Card findRandomCard();
+    @Query(nativeQuery = true, value = "select * from card where card_rarity = :rarity and collection_id in (select collection_id from player_collection pc where pc.player_id = :playerId) order by random() limit 5;")
+    Card findRandomCard(@Param(value = "playerId") Long playerId, @Param(value = "rarity") String rarity);
 
     @Query(nativeQuery = true, value = "SELECT * FROM card ORDER BY RANDOM() LIMIT :nb")
     List<Card> getSomeRandomCards(@Param(value = "nb") int nb);

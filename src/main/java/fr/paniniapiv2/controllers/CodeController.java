@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @RestController
 public class CodeController {
@@ -54,8 +55,9 @@ public class CodeController {
     }
 
     @PostMapping("/consume")
-    public ResponseEntity<List<Card>> consumeCode(@RequestBody PlayerResource player, @RequestParam String code) {
+    public ResponseEntity<List<Card>> consumeCode(@RequestBody PlayerResource playerResource, @RequestParam String code) {
         List<Card> cards = new ArrayList<>();
+        Player player = this.playerRepository.findByUsername(playerResource.getUsername()).orElseThrow();
 
         // Checker si le joueur existe
         if (!playerRepository.existsByUsername(player.getUsername())) {
@@ -79,7 +81,8 @@ public class CodeController {
         // Checker le type de code
         switch (foundCode.getCodeType()) {
             case CARD:
-                Card c = cardRepository.findRandomCard();
+                String rarity = getRandomRarity();
+                Card c = cardRepository.findRandomCard(player.getId(), rarity);
                 cards.add(c);
 
                 insertCard(playerAssociated.getId(), c.getId());
@@ -87,9 +90,14 @@ public class CodeController {
                 codeRepository.delete(foundCode);
                 break;
             case CARD_PACK:
-                Card c1 = cardRepository.findRandomCard();
-                Card c2 = cardRepository.findRandomCard();
-                Card c3 = cardRepository.findRandomCard();
+                String rarity1 = getRandomRarity();
+                Card c1 = cardRepository.findRandomCard(player.getId(), rarity1);
+
+                String rarity2 = getRandomRarity();
+                Card c2 = cardRepository.findRandomCard(player.getId(), rarity2);
+
+                String rarity3 = getRandomRarity();
+                Card c3 = cardRepository.findRandomCard(player.getId(), rarity3);
 
                 cards.add(c1);
                 cards.add(c2);
@@ -129,5 +137,18 @@ public class CodeController {
         }
 
         // si non : ajouter à la base
+    }
+
+    private String getRandomRarity() {
+        Random random = new Random();
+        int i = random.nextInt(100) + 1;
+
+        if (i == 1) {
+            return "EPIC";
+        } else if (i > 1 && i <=6) {
+            return "RARE";
+        } else {
+            return "NORMAL";
+        }
     }
 }

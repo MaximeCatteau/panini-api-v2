@@ -20,5 +20,5 @@ public class Collection {
 
     private String imageUrl;
 
-    private double price = 0.0;
+    private Integer price = 0;
 }
