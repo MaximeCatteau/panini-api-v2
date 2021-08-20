@@ -69,10 +69,8 @@ public class CodeController {
             return new ResponseEntity<>(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
         }
 
-        Player playerAssociated = this.playerRepository.findByUsername(player.getUsername()).get();
-
         // Checker si le code est bien associé au joueur
-        if (!codeRepository.existsByValueAndPlayerAssociated(code, playerAssociated.getId())) {
+        if (!codeRepository.existsByValueAndPlayerAssociated(code, player.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
         }
 
@@ -82,10 +80,11 @@ public class CodeController {
         switch (foundCode.getCodeType()) {
             case CARD:
                 String rarity = getRandomRarity();
+
                 Card c = cardRepository.findRandomCard(player.getId(), rarity);
                 cards.add(c);
 
-                insertCard(playerAssociated.getId(), c.getId());
+                insertCard(player.getId(), c.getId());
 
                 codeRepository.delete(foundCode);
                 break;
@@ -103,9 +102,9 @@ public class CodeController {
                 cards.add(c2);
                 cards.add(c3);
 
-                insertCard(playerAssociated.getId(), c1.getId());
-                insertCard(playerAssociated.getId(), c2.getId());
-                insertCard(playerAssociated.getId(), c3.getId());
+                insertCard(player.getId(), c1.getId());
+                insertCard(player.getId(), c2.getId());
+                insertCard(player.getId(), c3.getId());
 
                 codeRepository.delete(foundCode);
                 break;
