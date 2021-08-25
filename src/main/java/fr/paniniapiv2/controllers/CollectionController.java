@@ -3,10 +3,9 @@ package fr.paniniapiv2.controllers;
 import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.Collection;
 import fr.paniniapiv2.db.Player;
+import fr.paniniapiv2.db.PlayerCareer;
 import fr.paniniapiv2.db.PlayerCollection;
-import fr.paniniapiv2.repositories.CollectionRepository;
-import fr.paniniapiv2.repositories.PlayerCollectionRepository;
-import fr.paniniapiv2.repositories.PlayerRepository;
+import fr.paniniapiv2.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,12 @@ public class CollectionController {
 
     @Autowired
     PlayerCollectionRepository playerCollectionRepository;
+
+    @Autowired
+    PlayerCareerRepository playerCareerRepository;
+
+    @Autowired
+    CardRepository cardRepository;
 
     @GetMapping("/collections/category")
     public List<Collection> getCollectionByCategoryId(@RequestParam int categoryId) {
@@ -62,6 +67,7 @@ public class CollectionController {
     public ResponseEntity<Collection> buyCollection(@RequestBody PlayerResource player, @RequestParam Integer collectionId) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
         Collection c = this.collectionRepository.findById(collectionId).orElseThrow();
+        PlayerCareer playerCareer = this.playerCareerRepository.findByPlayerId(p.getId());
 
         // Check si le joueur a assez de thune
         if (p.getCashCard() < c.getPrice()) {
@@ -76,8 +82,20 @@ public class CollectionController {
         this.playerCollectionRepository.save(pc);
 
         // Retirer le prix de la collection au cash du joueur
-        p.setCashCard(p.getCashCard() - (int) c.getPrice());
+        p.setCashCard(p.getCashCard() - c.getPrice());
         this.playerRepository.save(p);
+
+        // Mise a jour des states du joueur
+        // -- cash spent
+        playerCareer.setCashSpent(playerCareer.getCashSpent() + c.getPrice());
+
+        // -- collection owned
+        playerCareer.setCollections(playerCareer.getCollections() + 1);
+
+        // -- missing cards
+        playerCareer.setMissingCards(playerCareer.getMissingCards() + this.cardRepository.countByCollectionId(c.getId()));
+
+        this.playerCareerRepository.save(playerCareer);
 
         return new ResponseEntity<>(c, HttpStatus.OK);
     }

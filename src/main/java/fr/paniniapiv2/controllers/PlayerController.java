@@ -1,12 +1,8 @@
 package fr.paniniapiv2.controllers;
 
 import fr.paniniapiv2.PlayerResource;
-import fr.paniniapiv2.db.Collection;
-import fr.paniniapiv2.db.Player;
-import fr.paniniapiv2.db.PlayerCollection;
-import fr.paniniapiv2.repositories.CollectionRepository;
-import fr.paniniapiv2.repositories.PlayerCollectionRepository;
-import fr.paniniapiv2.repositories.PlayerRepository;
+import fr.paniniapiv2.db.*;
+import fr.paniniapiv2.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +23,15 @@ public class PlayerController {
 
     @Autowired
     PlayerCollectionRepository playerCollectionRepository;
+
+    @Autowired
+    PlayerCareerRepository playerCareerRepository;
+
+    @Autowired
+    PlayerCardRepository playerCardRepository;
+
+    @Autowired
+    LadderRepository ladderRepository;
 
     private static final String ALGORITHM = "SHA";
 
@@ -54,6 +59,37 @@ public class PlayerController {
 
             this.playerCollectionRepository.save(pc);
         }
+
+        // INITIALIZING LADDER
+        Ladder ladder = new Ladder();
+        ladder.setCardCount(0);
+        ladder.setPlayerUsername(player.getUsername());
+
+        this.ladderRepository.save(ladder);
+
+        // INITIALIZING STATS
+        PlayerCareer playerCareer = new PlayerCareer();
+
+        playerCareer.setPlayerId(player.getId());
+        playerCareer.setCashSpent(0);
+        playerCareer.setCollections(this.collectionRepository.getFreeCollections().size());
+        playerCareer.setLogoGuesser(false);
+        playerCareer.setTotalCard(0);
+        playerCareer.setCollectionsCompleted(0);
+        playerCareer.setMissingCards(this.playerCollectionRepository.getTotalNumberOfCardsInPlayerCollection(player.getId()));
+        playerCareer.setTradeCompleted(0);
+
+        int index = 1;
+
+        for (Ladder l : this.ladderRepository.getLadder()) {
+            if (l.getPlayerUsername().equals(player.getUsername())) {
+                playerCareer.setPositionOnLadder(index);
+            }
+
+            index++;
+        }
+
+        this.playerCareerRepository.save(playerCareer);
 
         return new ResponseEntity<>(player, HttpStatus.OK);
     }

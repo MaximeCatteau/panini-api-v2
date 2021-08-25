@@ -1,16 +1,10 @@
 package fr.paniniapiv2.controllers;
 
 import fr.paniniapiv2.PlayerResource;
-import fr.paniniapiv2.db.Card;
-import fr.paniniapiv2.db.Code;
-import fr.paniniapiv2.db.Player;
-import fr.paniniapiv2.db.PlayerCard;
+import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.enums.CodeStatus;
 import fr.paniniapiv2.enums.CodeType;
-import fr.paniniapiv2.repositories.CardRepository;
-import fr.paniniapiv2.repositories.CodeRepository;
-import fr.paniniapiv2.repositories.PlayerCardRepository;
-import fr.paniniapiv2.repositories.PlayerRepository;
+import fr.paniniapiv2.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +30,12 @@ public class CodeController {
 
     @Autowired
     PlayerCardRepository playerCardRepository;
+
+    @Autowired
+    PlayerCareerRepository playerCareerRepository;
+
+    @Autowired
+    LadderRepository ladderRepository;
 
     @PostMapping("/generate")
     public Code generateCode(@RequestBody PlayerResource resource) {
@@ -126,11 +126,35 @@ public class CodeController {
 
             this.playerCardRepository.save(playerCard);
         } else {
+            Player player = this.playerRepository.findById(playerId).orElseThrow();
             PlayerCard playerCard = new PlayerCard();
+            Card card = this.cardRepository.findById(cardId);
+            Ladder ladder = this.ladderRepository.findByPlayerUsername(player.getUsername());
+
+            PlayerCareer playerCareer = this.playerCareerRepository.findByPlayerId(playerId);
 
             playerCard.setCardId(cardId);
             playerCard.setPlayerId(playerId);
             playerCard.setQuantity(1);
+
+            // -- player career : cards owned
+            playerCareer.setTotalCard(playerCareer.getTotalCard() + 1);
+            // -- player career ! missing cards
+            playerCareer.setMissingCards(playerCareer.getMissingCards() - 1);
+            // -- collection completed ?
+            int collectionSize = this.cardRepository.findByCollectionId(card.getCollectionId()).size();
+            int countOfCardsOwnedByPlayerOnCollection = this.playerCardRepository.getNumberOfPlayerCardsOnCollection(playerId, card.getCollectionId());
+
+            if (collectionSize == countOfCardsOwnedByPlayerOnCollection) {
+                playerCareer.setCollectionsCompleted(playerCareer.getCollectionsCompleted() + 1);
+            }
+
+            // -- ladder : increase card count
+            ladder.setCardCount(ladder.getCardCount() + 1);
+
+            this.ladderRepository.save(ladder);
+
+            this.playerCareerRepository.save(playerCareer);
 
             this.playerCardRepository.save(playerCard);
         }
