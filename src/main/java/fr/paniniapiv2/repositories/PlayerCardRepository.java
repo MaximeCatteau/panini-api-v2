@@ -3,6 +3,7 @@ package fr.paniniapiv2.repositories;
 import fr.paniniapiv2.db.PlayerCard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,5 +18,5 @@ public interface PlayerCardRepository extends JpaRepository<PlayerCard, Integer>
     Integer getNumberOfPlayerCardsOnCollection(Long playerId, int collectionId);
 
     @Query(nativeQuery = true, value = "select * from player_card pc where player_id = :playerId and quantity > 1;")
-    List<PlayerCard> getPlayerDoubles(Long playerId);
+    List<PlayerCard> getPlayerDoubles(@Param("playerId") Long playerId);
 }
