@@ -45,10 +45,17 @@ public class CollectionController {
         return this.collectionRepository.getCollectionsToPay();
     }
 
-    @PostMapping("/collections/owned")
-    public List<Collection> getCollectionsOwnedByPlayer(@RequestBody PlayerResource player, @RequestParam int categoryId) {
+    @PostMapping("/collections/owned/category")
+    public List<Collection> getCollectionsOwnedByPlayerByCategory(@RequestBody PlayerResource player, @RequestParam int categoryId) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
-        return this.collectionRepository.getCollectionsOwnedByPlayer(p.getId(), categoryId);
+        return this.collectionRepository.getCollectionsOwnedByPlayerByCategory(p.getId(), categoryId);
+    }
+
+    @CrossOrigin
+    @PostMapping("/collections/owned")
+    public List<Collection> getCollectionsOwnedByPlayer(@RequestBody PlayerResource player) {
+        Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
+        return this.collectionRepository.getCollectionsOwnedByPlayer(p.getId());
     }
 
     @PostMapping("/collections/alreadyPaid")
@@ -57,12 +64,14 @@ public class CollectionController {
         return this.collectionRepository.getCollectionsAlreadyPaidByPlayer(p.getId());
     }
 
+    @CrossOrigin
     @PostMapping("/collections/notAlreadyPaid")
     public List<Collection> getCollectionsNotAlreadyPaidByPlayer(@RequestBody PlayerResource player) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
         return this.collectionRepository.getCollectionsNotAlreadyPaidByPlayer(p.getId());
     }
 
+    @CrossOrigin
     @PostMapping("/collections/buy")
     public ResponseEntity<Collection> buyCollection(@RequestBody PlayerResource player, @RequestParam Integer collectionId) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();

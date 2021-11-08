@@ -19,4 +19,7 @@ public interface PlayerCardRepository extends JpaRepository<PlayerCard, Integer>
 
     @Query(nativeQuery = true, value = "select * from player_card pc where player_id = :playerId and quantity > 1;")
     List<PlayerCard> getPlayerDoubles(@Param("playerId") Long playerId);
+
+    @Query(nativeQuery = true, value = "select * from player_card pc where player_id = :playerId and card_id = :cardId")
+    PlayerCard getPlayerCard(@Param("playerId") Long playerId, @Param("cardId") Integer cardId);
 }

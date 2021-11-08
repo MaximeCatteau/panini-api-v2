@@ -6,10 +6,7 @@ import fr.paniniapiv2.db.Player;
 import fr.paniniapiv2.repositories.CardRepository;
 import fr.paniniapiv2.repositories.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +18,7 @@ public class CardController {
     @Autowired
     PlayerRepository playerRepository;
 
+    @CrossOrigin
     @GetMapping("/cards")
     public List<Card> getAllCards() {
         return this.cardRepository.findAll();
@@ -41,6 +39,7 @@ public class CardController {
         return this.cardRepository.findByCollectionId(collectionId);
     }
 
+    @CrossOrigin
     @GetMapping("/cards/collection/length")
     public Integer getCollectionLength(@RequestParam int collectionId) {
         return this.cardRepository.countByCollectionId(collectionId);

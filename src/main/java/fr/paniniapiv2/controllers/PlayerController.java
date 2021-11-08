@@ -6,6 +6,7 @@ import fr.paniniapiv2.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,7 @@ public class PlayerController {
 
     private static final String ALGORITHM = "SHA";
 
+    @CrossOrigin
     @PostMapping("/signup")
     public ResponseEntity<Player> registerPlayer(@RequestBody PlayerResource resource) {
         if (playerRepository.existsByUsername(resource.getUsername())) {
@@ -94,6 +96,7 @@ public class PlayerController {
         return new ResponseEntity<>(player, HttpStatus.OK);
     }
 
+    @CrossOrigin
     @PostMapping("/signin")
     public ResponseEntity<Player> connectPlayer(@RequestBody PlayerResource resource) {
         if (!playerRepository.existsByUsername(resource.getUsername())) {

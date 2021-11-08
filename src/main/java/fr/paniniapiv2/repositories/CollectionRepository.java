@@ -17,7 +17,10 @@ public interface CollectionRepository extends JpaRepository<Collection, Integer>
     List<Collection> getCollectionsToPay();
 
     @Query(nativeQuery = true, value = "SELECT * FROM collection WHERE category_id = :categoryId AND id in (SELECT collection_id FROM player_collection WHERE player_id = :playerId)")
-    List<Collection> getCollectionsOwnedByPlayer(@Param("playerId") Long playerId, @Param("categoryId") int categoryId);
+    List<Collection> getCollectionsOwnedByPlayerByCategory(@Param("playerId") Long playerId, @Param("categoryId") int categoryId);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM collection WHERE id in (SELECT collection_id FROM player_collection WHERE player_id = :playerId) order by name ASC")
+    List<Collection> getCollectionsOwnedByPlayer(@Param("playerId") Long playerId);
 
     @Query(nativeQuery = true, value = "select * from collection c where price > 0 and id in (select collection_id from player_collection pc where pc.player_id = :playerId)")
     List<Collection> getCollectionsAlreadyPaidByPlayer(@Param("playerId") Long playerId);
