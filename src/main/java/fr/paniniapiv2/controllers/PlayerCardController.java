@@ -3,16 +3,19 @@ package fr.paniniapiv2.controllers;
 import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.Card;
 import fr.paniniapiv2.db.Player;
+import fr.paniniapiv2.db.PlayerCard;
 import fr.paniniapiv2.db.Trade;
 import fr.paniniapiv2.repositories.CardRepository;
 import fr.paniniapiv2.repositories.PlayerCardRepository;
 import fr.paniniapiv2.repositories.PlayerRepository;
 import fr.paniniapiv2.repositories.TradeRepository;
+import fr.paniniapiv2.resources.PlayerCardResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,22 +31,42 @@ public class PlayerCardController {
 
     @CrossOrigin
     @GetMapping("/player/cards")
-    public ResponseEntity<List<Card>> getAllPlayerCards(@RequestParam String playerName) {
+    public ResponseEntity<List<PlayerCardResource>> getAllPlayerCards(@RequestParam String playerName) {
         Player player = playerRepository.findByUsername(playerName).get();
+        List<PlayerCardResource> resources = new ArrayList<>();
 
         List<Card> playerCards = this.cardRepository.getAllPlayerCards(player.getId());
 
-        return new ResponseEntity<>(playerCards, HttpStatus.OK);
+        for(Card c : playerCards) {
+            PlayerCardResource pcr = new PlayerCardResource();
+            pcr.setCard(c);
+            PlayerCard playerCard = this.playerCardRepository.getPlayerCard(player.getId(), c.getId());
+            pcr.setCardQuantity(playerCard.getQuantity());
+
+            resources.add(pcr);
+        }
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @CrossOrigin
     @PostMapping("/player/cards/collection")
-    public ResponseEntity<List<Card>> getPlayerCardsByCollectionId(@RequestBody PlayerResource playerResource, @RequestParam int collectionId) {
+    public ResponseEntity<List<PlayerCardResource>> getPlayerCardsByCollectionId(@RequestBody PlayerResource playerResource, @RequestParam int collectionId) {
         Player player = playerRepository.findByUsername(playerResource.getUsername()).get();
+        List<PlayerCardResource> resources = new ArrayList<>();
 
         List<Card> playerCards = this.cardRepository.getPlayerCardsByCollectionId(player.getId(), collectionId);
 
-        return new ResponseEntity<>(playerCards, HttpStatus.OK);
+        for(Card c : playerCards) {
+            PlayerCardResource pcr = new PlayerCardResource();
+            pcr.setCard(c);
+            PlayerCard playerCard = this.playerCardRepository.getPlayerCard(player.getId(), c.getId());
+            pcr.setCardQuantity(playerCard.getQuantity());
+
+            resources.add(pcr);
+        }
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @PostMapping("/player/cards/doubles")

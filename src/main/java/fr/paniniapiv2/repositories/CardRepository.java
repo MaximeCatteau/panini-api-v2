@@ -1,6 +1,7 @@
 package fr.paniniapiv2.repositories;
 
 import fr.paniniapiv2.db.Card;
+import fr.paniniapiv2.resources.PlayerCardResource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,7 +20,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM card WHERE collection_id = :collectionId ORDER BY id_in_collection ASC")
     List<Card> findByCollectionId(@Param(value = "collectionId") int collectionId);
 
-    @Query(nativeQuery = true, value = "select * from card c where id in (select card_id from player_card pc where pc.player_id = :playerId) order by c.id ASC")
+    @Query(nativeQuery = true, value = "select * from card c where c.id in (select card_id from player_card pc where pc.player_id = :playerId) order by c.id ASC")
     List<Card> getAllPlayerCards(@Param(value = "playerId") Long playerId);
 
     @Query(nativeQuery = true, value = "select * from card c where collection_id = :collectionId and id in (select card_id from player_card pc where pc.player_id = :playerId)")
