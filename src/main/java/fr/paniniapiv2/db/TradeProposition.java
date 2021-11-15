@@ -14,7 +14,9 @@ public class TradeProposition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer recipientId;
+    private Long recipientId;
 
     private Integer cardId;
+
+    private Integer tradeId;
 }
