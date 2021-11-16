@@ -5,6 +5,11 @@ import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.enums.CodeStatus;
 import fr.paniniapiv2.enums.CodeType;
 import fr.paniniapiv2.repositories.*;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.Channel;
+import org.javacord.api.entity.channel.PrivateChannel;
+import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class CodeController {
@@ -33,6 +39,18 @@ public class CodeController {
 
     @Autowired
     LadderRepository ladderRepository;
+
+    @Autowired
+    CollectionRepository collectionRepository;
+
+    /**
+     * DISCORD
+     * @param resource
+     * @return
+     */
+    DiscordApi api = new DiscordApiBuilder()
+            .setToken("OTEwMDg2MTQyNTgwMzY3Mzgw.YZNtxA.qZBFOb7Ro2yct4Ddv_AQAEYTs50")
+            .login().join();
 
     @PostMapping("/generate")
     public Code generateCode(@RequestBody PlayerResource resource) {
@@ -83,6 +101,17 @@ public class CodeController {
                 cards.add(c);
 
                 insertCard(player.getId(), c.getId());
+
+                CompletableFuture<User> user = api.getUserById("185790407156826113");
+
+                try {
+                    PrivateChannel pc = user.get().openPrivateChannel().get();
+                    Collection cardCollection = this.collectionRepository.getById(c.getCollectionId());
+                    pc.sendMessage(player.getUsername() + " a reçu la carte " + c.getLabel() + " (" + cardCollection.getName() + ")");
+
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
 
                 codeRepository.delete(foundCode);
                 break;
