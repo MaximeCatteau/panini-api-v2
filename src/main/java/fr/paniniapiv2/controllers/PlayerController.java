@@ -6,12 +6,11 @@ import fr.paniniapiv2.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -46,6 +45,15 @@ public class PlayerController {
         resource.setPassword(getEncryptedPassword(resource.getPassword()));
 
         Player player = Player.fromResource(resource);
+
+        SecureRandom secureRandom = new SecureRandom(); //threadsafe
+        Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
+
+        byte[] randomBytes = new byte[24];
+        secureRandom.nextBytes(randomBytes);
+        String token = base64Encoder.encodeToString(randomBytes);
+
+        player.setToken(token);
 
         player = playerRepository.save(player);
 
@@ -103,13 +111,35 @@ public class PlayerController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        SecureRandom secureRandom = new SecureRandom(); //threadsafe
+        Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
+
+        byte[] randomBytes = new byte[24];
+        secureRandom.nextBytes(randomBytes);
+        String token = base64Encoder.encodeToString(randomBytes);
+
         Player playerAssociated = playerRepository.findByUsername(resource.getUsername()).get();
 
         if (playerAssociated.getPassword().equals(getEncryptedPassword(resource.getPassword()))) {
-            return new ResponseEntity<>(playerAssociated, HttpStatus.OK);
+            Player connectedPlayer = playerAssociated;
+            connectedPlayer.setToken(token);
+            this.playerRepository.save(connectedPlayer);
+            return new ResponseEntity<>(connectedPlayer, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @CrossOrigin
+    @PostMapping("/logout")
+    public ResponseEntity<Player> logoutPlayer(@RequestParam String token) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
+
+        p.setToken(null);
+
+        this.playerRepository.save(p);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private String getEncryptedPassword(String rawPassword) {

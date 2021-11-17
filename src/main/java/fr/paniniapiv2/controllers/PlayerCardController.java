@@ -32,8 +32,8 @@ public class PlayerCardController {
 
     @CrossOrigin
     @GetMapping("/player/cards")
-    public ResponseEntity<List<PlayerCardResource>> getAllPlayerCards(@RequestParam String playerName) {
-        Player player = playerRepository.findByUsername(playerName).get();
+    public ResponseEntity<List<PlayerCardResource>> getAllPlayerCards(@RequestParam String token) {
+        Player player = playerRepository.findByToken(token).get();
         List<PlayerCardResource> resources = new ArrayList<>();
 
         List<Card> playerCards = this.cardRepository.getAllPlayerCards(player.getId());
@@ -52,8 +52,8 @@ public class PlayerCardController {
 
     @CrossOrigin
     @PostMapping("/player/cards/collection")
-    public ResponseEntity<List<PlayerCardResource>> getPlayerCardsByCollectionId(@RequestBody PlayerResource playerResource, @RequestParam int collectionId) {
-        Player player = playerRepository.findByUsername(playerResource.getUsername()).get();
+    public ResponseEntity<List<PlayerCardResource>> getPlayerCardsByCollectionId(@RequestParam String token, @RequestParam int collectionId) {
+        Player player = playerRepository.findByToken(token).get();
         List<PlayerCardResource> resources = new ArrayList<>();
 
         List<Card> playerCards = this.cardRepository.getPlayerCardsByCollectionId(player.getId(), collectionId);
@@ -72,8 +72,8 @@ public class PlayerCardController {
 
     @CrossOrigin
     @PostMapping("/player/cards/doubles")
-    public ResponseEntity<List<PlayerCardCollectionResource>> getPlayerDoubleCards(@RequestBody PlayerResource playerResource) {
-        Player player = playerRepository.findByUsername(playerResource.getUsername()).get();
+    public ResponseEntity<List<PlayerCardCollectionResource>> getPlayerDoubleCards(@RequestParam String token) {
+        Player player = playerRepository.findByToken(token).orElseThrow();
 
         List<Card> doubles = this.cardRepository.getDoubleCardsForPlayer(player.getId());
         List<PlayerCardCollectionResource> resources = new ArrayList<>();
@@ -94,8 +94,8 @@ public class PlayerCardController {
 
     @CrossOrigin
     @PostMapping("/player/cards/trade/create")
-    public ResponseEntity<Trade> createTrade(@RequestBody PlayerResource playerResource, @RequestParam int cardProposedId) {
-        Player player = this.playerRepository.findByUsername(playerResource.getUsername()).orElseThrow();
+    public ResponseEntity<Trade> createTrade(@RequestParam String token, @RequestParam int cardProposedId) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
 
         // Check if player has the card
         if(!this.playerCardRepository.existsByCardIdAndPlayerId(cardProposedId, player.getId())) {

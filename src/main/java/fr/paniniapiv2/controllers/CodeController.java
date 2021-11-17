@@ -7,7 +7,6 @@ import fr.paniniapiv2.enums.CodeType;
 import fr.paniniapiv2.repositories.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.channel.Channel;
 import org.javacord.api.entity.channel.PrivateChannel;
 import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +70,9 @@ public class CodeController {
 
     @CrossOrigin
     @PostMapping("/consume")
-    public ResponseEntity<List<Card>> consumeCode(@RequestBody PlayerResource playerResource, @RequestParam String code) {
+    public ResponseEntity<List<Card>> consumeCode(@RequestParam String token, @RequestParam String code) {
         List<Card> cards = new ArrayList<>();
-        Player player = this.playerRepository.findByUsername(playerResource.getUsername()).orElseThrow();
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
 
         // Checker si le joueur existe
         if (!playerRepository.existsByUsername(player.getUsername())) {

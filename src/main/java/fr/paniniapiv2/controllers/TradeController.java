@@ -5,6 +5,10 @@ import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.repositories.*;
 import fr.paniniapiv2.resources.TradePropositionResource;
 import fr.paniniapiv2.resources.TradeStepOneResource;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.PrivateChannel;
+import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class TradeController {
@@ -39,18 +44,14 @@ public class TradeController {
     @Autowired
     PlayerCareerRepository playerCareerRepository;
 
-    @PostMapping("/trade")
-    public ResponseEntity<Trade> createTrade(@RequestBody PlayerResource resource, @RequestParam("cardId") int cardId) {
-        Player player = this.playerRepository.findByUsername(resource.getUsername()).orElseThrow();
-        PlayerCard playerCard = this.playerCardRepository.getPlayerCard(player.getId(), cardId);
-
-        // Checker si le joueur possède bien la carte EN DOUBLE
-        if (playerCard == null || playerCard.getQuantity() <= 1){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-    }
+    /**
+     * DISCORD
+     * @param resource
+     * @return
+     */
+    DiscordApi api = new DiscordApiBuilder()
+            .setToken("OTEwMDg2MTQyNTgwMzY3Mzgw.YZNtxA.qZBFOb7Ro2yct4Ddv_AQAEYTs50")
+            .login().join();
 
     @CrossOrigin
     @GetMapping("/trades/stepOne")
@@ -77,8 +78,8 @@ public class TradeController {
 
     @CrossOrigin
     @GetMapping("/trades/player")
-    public ResponseEntity<List<TradeStepOneResource>> getAllStepOneTradesForPlayer(@RequestParam String playerName) {
-        Player player = this.playerRepository.findByUsername(playerName).orElseThrow();
+    public ResponseEntity<List<TradeStepOneResource>> getAllStepOneTradesForPlayer(@RequestParam String token) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
         List<Trade> trades = this.tradeRepository.getAllTradesStepOneForPlayer(player.getId());
         List<TradeStepOneResource> resources = new ArrayList<>();
 
@@ -100,9 +101,10 @@ public class TradeController {
 
     @CrossOrigin
     @PostMapping("/trades/proposition")
-    public ResponseEntity<TradeProposition> createTradeProposition(@RequestBody PlayerResource playerResource, @RequestParam int tradeId, @RequestParam int traderCardId) {
-        Player player = this.playerRepository.findByUsername(playerResource.getUsername()).orElseThrow();
+    public ResponseEntity<TradeProposition> createTradeProposition(@RequestParam String token, @RequestParam int tradeId, @RequestParam int traderCardId) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
         Trade trade = this.tradeRepository.findById(tradeId).orElseThrow();
+        Player tradeInitiater = this.playerRepository.findById(trade.getTransmitterId()).orElseThrow();
 
         TradeProposition tradeProposition = new TradeProposition();
         tradeProposition.setTradeId(tradeId);
@@ -115,13 +117,23 @@ public class TradeController {
 
         this.tradeRepository.save(trade);
 
+        CompletableFuture<User> user = api.getUserById(tradeInitiater.getDiscordId());
+
+        try {
+            PrivateChannel pc = user.get().openPrivateChannel().get();
+            pc.sendMessage(player.getUsername() + " vous a fait une proposition pour un échange !");
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
         return new ResponseEntity<>(tradeProposition, HttpStatus.OK);
     }
 
     @CrossOrigin
     @GetMapping("/trades/propositions")
-    public ResponseEntity<List<TradePropositionResource>> getTradePropositionsForPlayer(@RequestParam String playerName) {
-        Player p = this.playerRepository.findByUsername(playerName).orElseThrow();
+    public ResponseEntity<List<TradePropositionResource>> getTradePropositionsForPlayer(@RequestParam String token) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
 
         // Player trades with status PROPOSED
         List<Trade> playerTradeProposed = this.tradeRepository.getAllTradesProposedForPlayer(p.getId());
@@ -185,11 +197,11 @@ public class TradeController {
 
     @CrossOrigin
     @PostMapping("/trades/trade/make")
-    public ResponseEntity<Card> makeTrade(@RequestBody PlayerResource playerResource, @RequestParam int tradeId, @RequestParam int tradePropositionId) {
+    public ResponseEntity<Card> makeTrade(@RequestParam String token, @RequestParam int tradeId, @RequestParam int tradePropositionId) {
         // Vérification du trade
         Trade trade = this.tradeRepository.findById(tradeId).orElseThrow();
         TradeProposition tradeProposition = this.tradePropositionRepository.findById(tradePropositionId).orElseThrow();
-        Player transmitter = this.playerRepository.findByUsername(playerResource.getUsername()).orElseThrow();
+        Player transmitter = this.playerRepository.findByToken(token).orElseThrow();
         Player recipient = this.playerRepository.findById(tradeProposition.getRecipientId()).orElseThrow();
         Card transmitterCard = this.cardRepository.findById(trade.getTransmitterCardId());
         Card recipientCard = this.cardRepository.findById(tradeProposition.getCardId());
@@ -198,6 +210,15 @@ public class TradeController {
 
         // Ajouter la carte au recipient
         this.insertCard(recipient.getId(), transmitterCard.getId());
+        CompletableFuture<User> user = api.getUserById(recipient.getDiscordId());
+
+        try {
+            PrivateChannel pc = user.get().openPrivateChannel().get();
+            pc.sendMessage("Votre proposition d'échange a été acceptée par " + transmitter.getUsername() + ". Vous recevez la carte " + transmitterCard.getLabel() + " !");
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         // Retirer la carte au recipient
         this.removeCard(recipient.getId(), recipientCard.getId());

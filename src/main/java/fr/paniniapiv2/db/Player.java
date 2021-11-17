@@ -24,6 +24,12 @@ public class Player {
 
     private Integer cashCard = 500;
 
+    private String role;
+
+    private String discordId;
+
+    private String token;
+
     public Player() {}
 
     public Player(String username, String password) {
