@@ -3,6 +3,10 @@ package fr.paniniapiv2.controllers;
 import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.repositories.*;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.PrivateChannel;
+import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class PlayerController {
@@ -34,6 +39,15 @@ public class PlayerController {
     LadderRepository ladderRepository;
 
     private static final String ALGORITHM = "SHA";
+
+    /**
+     * DISCORD
+     * @param resource
+     * @return
+     */
+    DiscordApi api = new DiscordApiBuilder()
+            .setToken("OTEwMDg2MTQyNTgwMzY3Mzgw.YZNtxA.qZBFOb7Ro2yct4Ddv_AQAEYTs50")
+            .login().join();
 
     @CrossOrigin
     @PostMapping("/signup")
@@ -140,6 +154,51 @@ public class PlayerController {
         this.playerRepository.save(p);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @GetMapping("/player")
+    public ResponseEntity<Player> getPlayerByToken(@RequestParam String token) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
+
+        return new ResponseEntity<>(player, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @GetMapping("/players")
+    public ResponseEntity<List<Player>> getAllPlayers(@RequestParam String token) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
+
+        if (!player.getRole().equals("ADMIN")) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity<>(this.playerRepository.findAll(), HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/money")
+    public ResponseEntity<Player> sendMoneyToPlayer(@RequestParam String token, @RequestParam Long userId, @RequestParam int amount) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
+        Player moneyReceiver = this.playerRepository.findById(userId).orElseThrow();
+
+        if (!p.getRole().equals("ADMIN")) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        moneyReceiver.setCashCard(moneyReceiver.getCashCard() + amount);
+        moneyReceiver = this.playerRepository.save(moneyReceiver);
+
+        CompletableFuture<User> user = api.getUserById(moneyReceiver.getDiscordId());
+
+        try {
+            PrivateChannel pc = user.get().openPrivateChannel().get();
+            pc.sendMessage("Bravo ! Vous avez reçu " + amount + " pièces !");
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>(moneyReceiver, HttpStatus.OK);
     }
 
     private String getEncryptedPassword(String rawPassword) {

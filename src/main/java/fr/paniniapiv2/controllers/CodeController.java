@@ -51,21 +51,38 @@ public class CodeController {
             .setToken("OTEwMDg2MTQyNTgwMzY3Mzgw.YZNtxA.qZBFOb7Ro2yct4Ddv_AQAEYTs50")
             .login().join();
 
+    @CrossOrigin
     @PostMapping("/generate")
-    public Code generateCode(@RequestBody PlayerResource resource) {
+    public ResponseEntity<Code> generateCode(@RequestParam String token, @RequestParam Long userId) {
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
+        Player codeReceiver = this.playerRepository.findById(userId).orElseThrow();
 
-        Player playerAssociated = playerRepository.findByUsername(resource.getUsername()).get();
+        if (!player.getRole().equals("ADMIN")) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         Code code = new Code();
 
-        code.setPlayerAssociated(playerAssociated.getId());
+        code.setPlayerAssociated(codeReceiver.getId());
         code.setCodeType(CodeType.CARD);
         code.setStatus(CodeStatus.GENERATED);
         code.setValue(code.generateRandomCode());
 
+        CompletableFuture<User> user = api.getUserById(codeReceiver.getDiscordId());
+        CompletableFuture<User> admin = api.getUserById(player.getDiscordId());
+
+        try {
+            PrivateChannel pcAdmin = admin.get().openPrivateChannel().get();
+            pcAdmin.sendMessage(codeReceiver.getUsername() + " a reçu un code !");
+            PrivateChannel pcUser = user.get().openPrivateChannel().get();
+            pcUser.sendMessage("Félicitations ! Vous avez reçu un code : " + code.getValue());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
         codeRepository.save(code);
 
-        return code;
+        return new ResponseEntity<>(code, HttpStatus.OK);
     }
 
     @CrossOrigin
