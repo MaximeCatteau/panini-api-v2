@@ -24,16 +24,19 @@ public class CardController {
         return this.cardRepository.findAll();
     }
 
+    @CrossOrigin
     @GetMapping("/cards/card")
     public Card getCardByCardId(@RequestParam int cardId) {
         return this.cardRepository.findById(cardId);
     }
 
+    @CrossOrigin
     @GetMapping("/cards/randoms")
     public List<Card> getSomeRandomCards(@RequestParam int nb) {
         return this.cardRepository.getSomeRandomCards(nb);
     }
 
+    @CrossOrigin
     @GetMapping("/cards/collection")
     public List<Card> getCardsByCollectionId(@RequestParam int collectionId) {
         return this.cardRepository.findByCollectionId(collectionId);

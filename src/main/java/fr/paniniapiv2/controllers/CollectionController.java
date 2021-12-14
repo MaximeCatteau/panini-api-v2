@@ -30,21 +30,25 @@ public class CollectionController {
     @Autowired
     CardRepository cardRepository;
 
+    @CrossOrigin
     @GetMapping("/collections/category")
     public List<Collection> getCollectionByCategoryId(@RequestParam int categoryId) {
         return this.collectionRepository.findByCategoryId(categoryId);
     }
 
+    @CrossOrigin
     @GetMapping("/collections")
     public Collection getCollectionById(@RequestParam int collectionId) {
         return this.collectionRepository.findById(collectionId).orElseThrow();
     }
 
+    @CrossOrigin
     @GetMapping("/collections/paid")
     public List<Collection> getCollectionToPay(){
         return this.collectionRepository.getCollectionsToPay();
     }
 
+    @CrossOrigin
     @PostMapping("/collections/owned/category")
     public List<Collection> getCollectionsOwnedByPlayerByCategory(@RequestBody PlayerResource player, @RequestParam int categoryId) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
@@ -58,6 +62,7 @@ public class CollectionController {
         return this.collectionRepository.getCollectionsOwnedByPlayer(p.getId());
     }
 
+    @CrossOrigin
     @PostMapping("/collections/alreadyPaid")
     public List<Collection> getCollectionsAlreadyPaidByPlayer(@RequestBody PlayerResource player) {
         Player p = this.playerRepository.findByUsername(player.getUsername()).orElseThrow();
