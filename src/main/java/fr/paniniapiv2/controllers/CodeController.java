@@ -1,6 +1,5 @@
 package fr.paniniapiv2.controllers;
 
-import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.enums.CodeStatus;
 import fr.paniniapiv2.enums.CodeType;
@@ -131,32 +130,103 @@ public class CodeController {
 
                 codeRepository.delete(foundCode);
                 break;
-            case CARD_PACK:
-                String rarity1 = getRandomRarity();
-                Card c1 = cardRepository.findRandomCard(player.getId(), rarity1);
-
-                String rarity2 = getRandomRarity();
-                Card c2 = cardRepository.findRandomCard(player.getId(), rarity2);
-
-                String rarity3 = getRandomRarity();
-                Card c3 = cardRepository.findRandomCard(player.getId(), rarity3);
-
-                cards.add(c1);
-                cards.add(c2);
-                cards.add(c3);
-
-                insertCard(player.getId(), c1.getId());
-                insertCard(player.getId(), c2.getId());
-                insertCard(player.getId(), c3.getId());
-
-                codeRepository.delete(foundCode);
-                break;
             default:
                 break;
         }
 
         // RETOURNER LES CARTES GAGNEES
         return new ResponseEntity<>(cards, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/buy/pack")
+    public ResponseEntity<List<Card>> buyCardPack(@RequestParam String token, @RequestParam int packNumber){
+        Player player = this.playerRepository.findByToken(token).orElseThrow();
+        PlayerCareer playerCareer = this.playerCareerRepository.findByPlayerId(player.getId());
+        List<Card> cardsObtained = new ArrayList<>();
+
+        // SELON LE TYPE DE PACK
+        switch (packNumber) {
+            // PACK 3 CARTES
+            case 0:
+                if (player.getCashCard() < 75) {
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                }
+
+                for (int i = 0; i<3; i++) {
+                    String rarity = getRandomRarity();
+                    Card c = cardRepository.findRandomCard(player.getId(), rarity);
+                    cardsObtained.add(c);
+                    insertCard(player.getId(), c.getId());
+                }
+
+                player.setCashCard(player.getCashCard() - 75);
+                playerCareer.setCashSpent(playerCareer.getCashSpent() + 75);
+
+                break;
+            // PACK 5 CARTES DONT RARE EPIC
+            case 1:
+                if (player.getCashCard() < 150) {
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                }
+                for (int i = 0; i<5; i++) {
+                    String rarity = getRandomRarity();
+
+                    if (i == 4) {
+                        rarity = getRareOrEpic();
+                    }
+
+                    Card c = cardRepository.findRandomCard(player.getId(), rarity);
+                    cardsObtained.add(c);
+                    insertCard(player.getId(), c.getId());
+                }
+
+                player.setCashCard(player.getCashCard() - 150);
+                playerCareer.setCashSpent(playerCareer.getCashSpent() + 150);
+
+                break;
+            case 2:
+                if (player.getCashCard() < 200) {
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                }
+                for (int i = 0; i<5; i++) {
+                    String rarity = getRandomRarity();
+
+                    if (i == 4) {
+                        rarity = getRareOrEpic();
+                    }
+
+                    Card c = cardRepository.findRandomCardWithCategory(player.getId(), rarity, 1);
+                    cardsObtained.add(c);
+                    insertCard(player.getId(), c.getId());
+                }
+
+                player.setCashCard(player.getCashCard() - 200);
+                playerCareer.setCashSpent(playerCareer.getCashSpent() + 200);
+
+                break;
+        }
+
+        this.playerRepository.save(player);
+
+        CompletableFuture<User> user = api.getUserById("185790407156826113");
+
+        try {
+            PrivateChannel pc = user.get().openPrivateChannel().get();
+            String message = player.getUsername() + " a acheté un pack " + packNumber + " et a obtenu : ";
+
+            for (Card card : cardsObtained) {
+                Collection cardCollection = this.collectionRepository.getById(card.getCollectionId());
+                message += "\n- " + card.getLabel() + "(" + cardCollection.getName() + ")";
+            }
+
+            pc.sendMessage(message);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>(cardsObtained, HttpStatus.OK);
     }
 
     private void insertCard(Long playerId, int cardId) {
@@ -215,6 +285,17 @@ public class CodeController {
             return "RARE";
         } else {
             return "NORMAL";
+        }
+    }
+
+    private String getRareOrEpic() {
+        Random random = new Random();
+        int i = random.nextInt(100) + 1;
+
+        if (i >= 1 && i < 20) {
+            return "EPIC";
+        } else {
+            return "RARE";
         }
     }
 }
