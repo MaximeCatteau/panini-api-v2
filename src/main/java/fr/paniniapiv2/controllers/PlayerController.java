@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class PlayerController {
     @Autowired

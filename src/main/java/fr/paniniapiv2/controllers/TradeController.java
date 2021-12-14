@@ -1,6 +1,5 @@
 package fr.paniniapiv2.controllers;
 
-import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.repositories.*;
 import fr.paniniapiv2.resources.TradePropositionResource;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class TradeController {
     @Autowired

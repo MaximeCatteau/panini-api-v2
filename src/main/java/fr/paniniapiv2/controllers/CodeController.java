@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class CodeController {
     @Autowired
