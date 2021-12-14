@@ -3,6 +3,7 @@ package fr.paniniapiv2.repositories;
 import fr.paniniapiv2.db.LogoLadder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface LogoLadderRepository extends JpaRepository<LogoLadder,Integer> 
     List<LogoLadder> getLeague2Ladder();
 
     @Query(nativeQuery = true, value = "select * from logo_ladder where logo_player_id = :logoPlayerId")
-    LogoLadder findByLogoPlayerId(int logoPlayerId);
+    LogoLadder findByLogoPlayerId(@Param(value = "logoPlayerId") int logoPlayerId);
 }

@@ -15,7 +15,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     Card findRandomCard(@Param(value = "playerId") Long playerId, @Param(value = "rarity") String rarity);
 
     @Query(nativeQuery = true, value = "select c.* from card c inner join collection col on col.id = c.collection_id where col.category_id = :categoryId and card_rarity = :rarity and collection_id in (select collection_id from player_collection pc where pc.player_id = :playerId) order by random() limit 1")
-    Card findRandomCardWithCategory(@Param(value = "playerId") Long playerId, @Param(value = "rarity") String rarity, int categoryId);
+    Card findRandomCardWithCategory(@Param(value = "playerId") Long playerId, @Param(value = "rarity") String rarity, @Param(value= "categoryId") int categoryId);
 
     @Query(nativeQuery = true, value = "SELECT * FROM card ORDER BY RANDOM() LIMIT :nb")
     List<Card> getSomeRandomCards(@Param(value = "nb") int nb);
