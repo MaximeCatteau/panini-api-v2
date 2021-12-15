@@ -158,7 +158,7 @@ public class LogoController {
             LogoPlayer logoPlayer = this.logoPlayerRepository.findByPlayerName(lpd.getPlayerName());
             LogoDay logoDay = new LogoDay();
 
-            logoDay.setDay(newDay);
+            logoDay.setDay("" + newDay);
             logoDay.setLogoPlayerId(logoPlayer.getId());
             logoDay.setPoints(lpd.getPoints());
             logoDay.setIsFastest(lpd.getIsFastest());
@@ -172,7 +172,7 @@ public class LogoController {
             LogoPlayer logoPlayer = this.logoPlayerRepository.findByPlayerName(lpd.getPlayerName());
             LogoDay logoDay = new LogoDay();
 
-            logoDay.setDay(newDay);
+            logoDay.setDay("" + newDay);
             logoDay.setLogoPlayerId(logoPlayer.getId());
             logoDay.setPoints(lpd.getPoints());
             logoDay.setIsFastest(lpd.getIsFastest());
