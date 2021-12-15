@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class DailyLogoLadderResource {
-    private String day;
+    private int day;
     private List<LogoDayResource> league1;
     private List<LogoDayResource> league2;
 }

@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface LogoDayRepository extends JpaRepository<LogoDay,Integer> {
     @Query(nativeQuery = true, value = "select * from logo_day WHERE season_id = :seasonId and day = :day")
-    List<LogoDay> findBySeasonIdAndDay(@Param(value = "seasonId") int seasonId, @Param(value = "day") String day);
+    List<LogoDay> findBySeasonIdAndDay(@Param(value = "seasonId") int seasonId, @Param(value = "day") int day);
 }

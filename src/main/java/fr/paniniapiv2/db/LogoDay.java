@@ -14,7 +14,7 @@ public class LogoDay {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String day;
+    private int day;
 
     private Boolean isFastest;
 

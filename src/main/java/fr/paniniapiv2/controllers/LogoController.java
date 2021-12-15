@@ -84,12 +84,12 @@ public class LogoController {
     public ResponseEntity<List<DailyLogoLadderResource>> getDailyLadders(@RequestParam String token, @RequestParam int seasonId) {
         Player player = this.playerRepository.findByToken(token).orElseThrow();
 
-        String currentDayInSeason = this.logoSeasonRepository.findCurrentSeason().getCurrentDay();
+        int currentDayInSeason = this.logoSeasonRepository.findCurrentSeason().getCurrentDay();
 
         List<DailyLogoLadderResource> dailyLogoLadderResourceList = new ArrayList<>();
 
-        for (int i = 1; i <= Integer.parseInt(currentDayInSeason); i++) {
-            List<LogoDay> seasonAndDayLogo = this.logoDayRepository.findBySeasonIdAndDay(seasonId, "" + i);
+        for (int i = 1; i <= currentDayInSeason; i++) {
+            List<LogoDay> seasonAndDayLogo = this.logoDayRepository.findBySeasonIdAndDay(seasonId, i);
             DailyLogoLadderResource dailyLogoLadderResource = new DailyLogoLadderResource();
             List<LogoDayResource> league1 = new ArrayList<>();
             List<LogoDayResource> league2 = new ArrayList<>();
@@ -109,7 +109,7 @@ public class LogoController {
                 }
             }
 
-            dailyLogoLadderResource.setDay("" + i);
+            dailyLogoLadderResource.setDay(i);
             dailyLogoLadderResource.setLeague1(league1);
             dailyLogoLadderResource.setLeague2(league2);
 
@@ -142,9 +142,9 @@ public class LogoController {
 
         // ENREGISTRER LES MODIFS SAISON
         LogoSeason season = this.logoSeasonRepository.findCurrentSeason();
-        List<LogoDay> previousDay = this.logoDayRepository.findBySeasonIdAndDay(season.getId(), "" + season.getCurrentDay());
-        int newDay = Integer.parseInt(season.getCurrentDay()) + 1;
-        season.setCurrentDay("" + newDay);
+        List<LogoDay> previousDay = this.logoDayRepository.findBySeasonIdAndDay(season.getId(), season.getCurrentDay());
+        int newDay = season.getCurrentDay() + 1;
+        season.setCurrentDay(newDay);
 
         if (newDay == 14) {
             season.setStatus("FINISHED");
@@ -158,7 +158,7 @@ public class LogoController {
             LogoPlayer logoPlayer = this.logoPlayerRepository.findByPlayerName(lpd.getPlayerName());
             LogoDay logoDay = new LogoDay();
 
-            logoDay.setDay("" + newDay);
+            logoDay.setDay(newDay);
             logoDay.setLogoPlayerId(logoPlayer.getId());
             logoDay.setPoints(lpd.getPoints());
             logoDay.setIsFastest(lpd.getIsFastest());
@@ -172,7 +172,7 @@ public class LogoController {
             LogoPlayer logoPlayer = this.logoPlayerRepository.findByPlayerName(lpd.getPlayerName());
             LogoDay logoDay = new LogoDay();
 
-            logoDay.setDay("" + newDay);
+            logoDay.setDay(newDay);
             logoDay.setLogoPlayerId(logoPlayer.getId());
             logoDay.setPoints(lpd.getPoints());
             logoDay.setIsFastest(lpd.getIsFastest());
@@ -183,7 +183,7 @@ public class LogoController {
         }
 
         // Process streaks
-        List<LogoDay> currentDay = this.logoDayRepository.findBySeasonIdAndDay(season.getId(), "" + newDay);
+        List<LogoDay> currentDay = this.logoDayRepository.findBySeasonIdAndDay(season.getId(), newDay);
 
         this.processStreaks(currentDay, previousDay);
 
