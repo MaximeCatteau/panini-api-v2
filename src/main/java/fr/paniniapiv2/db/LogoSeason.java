@@ -18,5 +18,5 @@ public class LogoSeason {
 
     private String status;
 
-    private Integer currentDay;
+    private String currentDay;
 }
