@@ -41,6 +41,7 @@ public class PlayerCareerController {
 
         PlayerCareerResource playerCareerResource = new PlayerCareerResource();
 
+        playerCareerResource.setPlayerId(player.getId());
         playerCareerResource.setTotalCards(playerCareer.getTotalCard());
         playerCareerResource.setTotalCardsToGet(playerCareer.getTotalCard() + playerCareer.getMissingCards());
         playerCareerResource.setCollectionsCompleted(playerCareer.getCollectionsCompleted());

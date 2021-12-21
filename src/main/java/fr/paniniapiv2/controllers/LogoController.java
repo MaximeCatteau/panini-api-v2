@@ -31,6 +31,12 @@ public class LogoController {
     @Autowired
     private LogoSeasonRepository logoSeasonRepository;
 
+    @Autowired
+    private PlayerTitleRepository playerTitleRepository;
+
+    @Autowired
+    private TitleRepository titleRepository;
+
     @CrossOrigin
     @GetMapping("/logo/league/1")
     public ResponseEntity<List<LogoLadderResource>> getLeague1Ladder(@RequestParam String token) {
@@ -48,6 +54,14 @@ public class LogoController {
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
+
+            PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
+
+            if (titleSelected != null) {
+                Title t = this.titleRepository.getById(titleSelected.getTitleId());
+                llr.setPlayerTitle(t.getLabel());
+                llr.setColor(t.getColor());
+            }
 
             resource.add(llr);
         }

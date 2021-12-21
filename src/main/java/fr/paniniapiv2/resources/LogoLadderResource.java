@@ -1,5 +1,7 @@
 package fr.paniniapiv2.resources;
 
+import fr.paniniapiv2.db.PlayerTitle;
+import fr.paniniapiv2.db.Title;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,4 +14,6 @@ public class LogoLadderResource {
     private int logoGuessed;
     private int streak;
     private int fastest;
+    private String playerTitle;
+    private String color;
 }

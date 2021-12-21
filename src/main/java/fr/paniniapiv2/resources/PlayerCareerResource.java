@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerCareerResource {
+    Long playerId;
     int totalCards;
     int totalCardsToGet;
     int collectionsOwned;

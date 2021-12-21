@@ -3,6 +3,7 @@ package fr.paniniapiv2.controllers;
 import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.repositories.*;
+import fr.paniniapiv2.resources.PlayerInfosResource;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.channel.PrivateChannel;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +40,12 @@ public class PlayerController {
 
     @Autowired
     LadderRepository ladderRepository;
+
+    @Autowired
+    PlayerTitleRepository playerTitleRepository;
+
+    @Autowired
+    TitleRepository titleRepository;
 
     private static final String ALGORITHM = "SHA";
 
@@ -200,6 +208,57 @@ public class PlayerController {
         }
 
         return new ResponseEntity<>(moneyReceiver, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @GetMapping("/infos")
+    public ResponseEntity<PlayerInfosResource> getPlayerInfos(@RequestParam String token, @RequestParam Long userId) {
+        Player connected = this.playerRepository.findByToken(token).orElseThrow();
+        Player askedInfos = this.playerRepository.getById(userId);
+        PlayerCareer askedCareer = this.playerCareerRepository.findByPlayerId(userId);
+
+        PlayerInfosResource resource = new PlayerInfosResource();
+
+        resource.setId(askedInfos.getId());
+        resource.setName(askedInfos.getUsername());
+        resource.setLogoGuesser(askedCareer.isLogoGuesser());
+
+        PlayerTitle playerTitleSelected = this.playerTitleRepository.getSelectedTitleByPlayerId(userId);
+
+        if (playerTitleSelected != null) {
+            Title selectedTitle = this.titleRepository.getById(this.playerTitleRepository.getSelectedTitleByPlayerId(userId).getTitleId());
+            resource.setSelectedTitle(selectedTitle.getLabel());
+            resource.setSelectedTitleColor(selectedTitle.getColor());
+        }
+
+        List<PlayerTitle> playerTitleList = this.playerTitleRepository.getAllPlayerTitlesByPlayerId(userId);
+        List<String> titles = new ArrayList<>();
+        for(PlayerTitle pt : playerTitleList) {
+            titles.add(this.titleRepository.getById(pt.getTitleId()).getLabel());
+        }
+
+        resource.setTitles(titles);
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping("/title")
+    public ResponseEntity<Title> updateTitle(@RequestParam String token, @RequestParam String label) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
+
+        Title title = this.titleRepository.findByLabel(label);
+
+        PlayerTitle currentPlayerTitle = this.playerTitleRepository.getSelectedTitleByPlayerId(p.getId());
+        currentPlayerTitle.setSelected(false);
+
+        PlayerTitle newPlayerTitle = this.playerTitleRepository.findByPlayerIdAndTitleId(p.getId(), title.getId());
+        newPlayerTitle.setSelected(true);
+
+        this.playerTitleRepository.save(currentPlayerTitle);
+        this.playerTitleRepository.save(newPlayerTitle);
+
+        return new ResponseEntity<>(title, HttpStatus.OK);
     }
 
     private String getEncryptedPassword(String rawPassword) {
