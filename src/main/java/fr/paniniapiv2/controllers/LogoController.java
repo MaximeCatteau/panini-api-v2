@@ -87,6 +87,14 @@ public class LogoController {
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
 
+            PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
+
+            if (titleSelected != null) {
+                Title t = this.titleRepository.getById(titleSelected.getTitleId());
+                llr.setPlayerTitle(t.getLabel());
+                llr.setColor(t.getColor());
+            }
+
             resource.add(llr);
         }
 
