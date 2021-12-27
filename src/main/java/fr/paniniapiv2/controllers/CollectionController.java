@@ -1,17 +1,17 @@
 package fr.paniniapiv2.controllers;
 
 import fr.paniniapiv2.PlayerResource;
+import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.db.Collection;
-import fr.paniniapiv2.db.Player;
-import fr.paniniapiv2.db.PlayerCareer;
-import fr.paniniapiv2.db.PlayerCollection;
 import fr.paniniapiv2.repositories.*;
+import fr.paniniapiv2.resources.CollectionLadderResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.math.BigInteger;
+import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -31,10 +31,22 @@ public class CollectionController {
     @Autowired
     CardRepository cardRepository;
 
+    @Autowired
+    PlayerTitleRepository playerTitleRepository;
+
+    @Autowired
+    TitleRepository titleRepository;
+
     @CrossOrigin
     @GetMapping("/collections/category")
     public List<Collection> getCollectionByCategoryId(@RequestParam int categoryId) {
         return this.collectionRepository.findByCategoryId(categoryId);
+    }
+
+    @CrossOrigin
+    @GetMapping("/collections/all")
+    public List<Collection> getAllCollections() {
+        return this.collectionRepository.findAll();
     }
 
     @CrossOrigin
@@ -47,6 +59,88 @@ public class CollectionController {
     @GetMapping("/collections/paid")
     public List<Collection> getCollectionToPay(){
         return this.collectionRepository.getCollectionsToPay();
+    }
+
+    @CrossOrigin
+    @GetMapping("/collection/ladder")
+    public ResponseEntity<List<CollectionLadderResource>> getLadderByCollection(@RequestParam int collectionId) {
+
+        List<Object[]> objectTest = this.collectionRepository.getCardCountsByCollection(collectionId);
+        List<CollectionLadderResource> resource = new ArrayList<>();
+
+        System.out.println(objectTest.size());
+
+        for(Object[] o : objectTest) {
+            Integer count = ((BigInteger) o[0]).intValue();
+            Long playerId = ((BigInteger) o[1]).longValue();
+
+            Player p = this.playerRepository.getById(playerId);
+
+            CollectionLadderResource clr = new CollectionLadderResource();
+
+            clr.setPlayerId(playerId);
+            clr.setCardCount(count);
+            clr.setPlayerName(p.getUsername());
+
+            PlayerTitle playerTitle = this.playerTitleRepository.getSelectedTitleByPlayerId(playerId);
+
+            Title titleSelected = new Title();
+
+            if (playerTitle != null) {
+                titleSelected = this.titleRepository.getById(playerTitle.getId());
+                clr.setTitleSelected(titleSelected.getLabel());
+                clr.setTitleSelectedColor(titleSelected.getColor());
+            }
+
+            if (!p.getUsername().equals("Admin")) {
+                resource.add(clr);
+            }
+        }
+
+        Collections.sort(resource, Comparator.comparing(CollectionLadderResource::getCardCount).reversed());
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @GetMapping("/collection/ladder/general")
+    public ResponseEntity<List<CollectionLadderResource>> getGeneralLadder() {
+
+        List<Object[]> objectTest = this.collectionRepository.getCardCountsForLadder();
+        List<CollectionLadderResource> resource = new ArrayList<>();
+
+        System.out.println(objectTest.size());
+
+        for(Object[] o : objectTest) {
+            Integer count = ((BigInteger) o[0]).intValue();
+            Long playerId = ((BigInteger) o[1]).longValue();
+
+            Player p = this.playerRepository.getById(playerId);
+
+            CollectionLadderResource clr = new CollectionLadderResource();
+
+            clr.setPlayerId(playerId);
+            clr.setCardCount(count);
+            clr.setPlayerName(p.getUsername());
+
+            PlayerTitle playerTitle = this.playerTitleRepository.getSelectedTitleByPlayerId(playerId);
+
+            Title titleSelected = new Title();
+
+            if (playerTitle != null) {
+                titleSelected = this.titleRepository.getById(playerTitle.getId());
+                clr.setTitleSelected(titleSelected.getLabel());
+                clr.setTitleSelectedColor(titleSelected.getColor());
+            }
+
+            if (!p.getUsername().equals("Admin")) {
+                resource.add(clr);
+            }
+        }
+
+        Collections.sort(resource, Comparator.comparing(CollectionLadderResource::getCardCount).reversed());
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     @CrossOrigin

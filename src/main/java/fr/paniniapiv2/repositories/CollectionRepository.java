@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CollectionRepository extends JpaRepository<Collection, Integer> {
     List<Collection> findByCategoryId(int categoryId);
@@ -27,4 +28,10 @@ public interface CollectionRepository extends JpaRepository<Collection, Integer>
 
     @Query(nativeQuery = true, value = "select * from collection c where price > 0 and id not in (select collection_id from player_collection pc where pc.player_id = :playerId)")
     List<Collection> getCollectionsNotAlreadyPaidByPlayer(@Param("playerId") Long playerId);
+
+    @Query(nativeQuery = true, value = "select count(*), pc.player_id from player_card pc inner join card c on c.id = pc.card_id where c.collection_id = :collectionId group by pc.player_id;")
+    List<Object[]> getCardCountsByCollection(@Param("collectionId") int collectionId);
+
+    @Query(nativeQuery = true, value = "select count(*), pc.player_id from player_card pc inner join card c on c.id = pc.card_id group by pc.player_id;")
+    List<Object[]> getCardCountsForLadder();
 }

@@ -39,10 +39,11 @@ public class LogoController {
 
     @CrossOrigin
     @GetMapping("/logo/league/1")
-    public ResponseEntity<List<LogoLadderResource>> getLeague1Ladder(@RequestParam String token) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague1Ladder(@RequestParam String token, @RequestParam int seasonId) {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
-        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague1Ladder();
+        LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
+        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague1Ladder(currentSeason.getId());
         List<LogoLadderResource> resource = new ArrayList<>();
 
         for (LogoLadder ll : rawLadder) {
@@ -71,10 +72,11 @@ public class LogoController {
 
     @CrossOrigin
     @GetMapping("/logo/league/2")
-    public ResponseEntity<List<LogoLadderResource>> getLeague2Ladder(@RequestParam String token) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague2Ladder(@RequestParam String token, @RequestParam int seasonId) {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
-        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague2Ladder();
+        LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
+        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague2Ladder(currentSeason.getId());
         List<LogoLadderResource> resource = new ArrayList<>();
 
         for (LogoLadder ll : rawLadder) {
