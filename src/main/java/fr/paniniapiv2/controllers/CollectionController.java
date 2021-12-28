@@ -87,7 +87,7 @@ public class CollectionController {
             Title titleSelected = new Title();
 
             if (playerTitle != null) {
-                titleSelected = this.titleRepository.getById(playerTitle.getId());
+                titleSelected = this.titleRepository.getById(playerTitle.getTitleId());
                 clr.setTitleSelected(titleSelected.getLabel());
                 clr.setTitleSelectedColor(titleSelected.getColor());
             }
@@ -128,7 +128,7 @@ public class CollectionController {
             Title titleSelected = new Title();
 
             if (playerTitle != null) {
-                titleSelected = this.titleRepository.getById(playerTitle.getId());
+                titleSelected = this.titleRepository.getById(playerTitle.getTitleId());
                 clr.setTitleSelected(titleSelected.getLabel());
                 clr.setTitleSelectedColor(titleSelected.getColor());
             }
