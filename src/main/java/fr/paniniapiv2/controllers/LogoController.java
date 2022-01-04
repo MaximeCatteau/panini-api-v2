@@ -125,7 +125,7 @@ public class LogoController {
                 ldr.setPoints(ld.getPoints());
                 ldr.setFastest(ld.getIsFastest());
 
-                LogoLadder playerLadder = this.logoLadderRepository.findByLogoPlayerId(ld.getLogoPlayerId());
+                LogoLadder playerLadder = this.logoLadderRepository.findByLogoPlayerId(ld.getLogoPlayerId(), seasonId);
                 if (playerLadder.getLeague() == 1) {
                     league1.add(ldr);
                 } else if (playerLadder.getLeague() == 2) {
@@ -215,7 +215,7 @@ public class LogoController {
     }
 
     private void processLadder(LogoDay logoDay) {
-        LogoLadder logoLadder = this.logoLadderRepository.findByLogoPlayerId(logoDay.getLogoPlayerId());
+        LogoLadder logoLadder = this.logoLadderRepository.findByLogoPlayerId(logoDay.getLogoPlayerId(), logoDay.getSeasonId());
 
         int newPoints = logoLadder.getTotalPoints() + logoDay.getPoints();
 
@@ -240,7 +240,7 @@ public class LogoController {
     private void processStreaks(List<LogoDay> current, List<LogoDay> previous) {
         for (LogoDay logoDay : previous) {
             if (current.stream().noneMatch(currentLogoDay -> currentLogoDay.getLogoPlayerId() == logoDay.getLogoPlayerId())) {
-                LogoLadder logoLadder = this.logoLadderRepository.findByLogoPlayerId(logoDay.getLogoPlayerId());
+                LogoLadder logoLadder = this.logoLadderRepository.findByLogoPlayerId(logoDay.getLogoPlayerId(), logoDay.getSeasonId());
                 logoLadder.setStreak(0);
                 logoLadder.setDayPoints(0);
                 this.logoLadderRepository.save(logoLadder);
