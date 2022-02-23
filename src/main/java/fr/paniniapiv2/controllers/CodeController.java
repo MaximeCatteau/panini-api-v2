@@ -7,10 +7,13 @@ import fr.paniniapiv2.repositories.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.channel.PrivateChannel;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
+@EnableScheduling
 public class CodeController {
     @Autowired
     PlayerRepository playerRepository;
@@ -298,5 +302,43 @@ public class CodeController {
         } else {
             return "RARE";
         }
+    }
+
+    @Scheduled(cron = "0 */30 10-20 ? * *")
+    public void scheduleRateTask() {
+        CompletableFuture<User> user = api.getUserById("185790407156826113");
+
+        try {
+            PrivateChannel pc = user.get().openPrivateChannel().get();
+            String message = "Every 30 minutes between 10:00 and 20:00 ?";
+
+            pc.sendMessage(message);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void listenCodeCommand() {
+        this.api.addMessageCreateListener(event -> {
+            if (!event.getMessageAuthor().getName().equals("Cards.io")) {
+
+                CompletableFuture<User> user = api.getUserById("185790407156826113");
+
+                if (event.getMessageContent().equalsIgnoreCase("jdl!rules")) {
+                    String msg = "**Jeu du Logo**\n\n" +
+                            "Le __Jeu du Logo__ est un petit jeu proposé par Kemy tous les jours à __19h__. Le but est très simple : deviner des logos d'équipes (clubs, sélections, anciens) sur lesquels il manquera des informations.\n\n" +
+                            "Pour participer, il vous suffira d'envoyer un MP à <@185790407156826113> avec votre réponse. Les points sont comptés en fonction de la rapidité par rapport aux joueurs de votre Ligue.\n\n" +
+                            "Vous pouvez consulter rapidement les classements sur __Cards.io__ (lien avec la commande *!cards.io*). Une saison dure 14 journées (donc 14 logos).\n\n" +
+                            "Bonne chance !";
+
+                    event.getChannel().sendMessage(msg);
+                }
+            }
+
+            if (event.getMessageContent().equalsIgnoreCase("!ping")) {
+                event.getChannel().sendMessage("Pong!");
+            }
+        });
     }
 }
