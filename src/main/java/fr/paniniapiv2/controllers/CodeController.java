@@ -304,13 +304,13 @@ public class CodeController {
         }
     }
 
-    @Scheduled(cron = "0 */30 10-20 ? * *")
+    @Scheduled(cron = "0 */15 * ? * *")
     public void scheduleRateTask() {
         CompletableFuture<User> user = api.getUserById("185790407156826113");
 
         try {
             PrivateChannel pc = user.get().openPrivateChannel().get();
-            String message = "Every 30 minutes between 10:00 and 20:00 ?";
+            String message = "Every 15 minutes ?";
 
             pc.sendMessage(message);
 
