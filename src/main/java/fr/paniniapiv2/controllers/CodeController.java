@@ -304,7 +304,7 @@ public class CodeController {
         }
     }
 
-    @Scheduled(cron = "0 */15 * ? * *")
+    @Scheduled(cron = "0 */5 * ? * *")
     public void scheduleRateTask() {
         CompletableFuture<User> user = api.getUserById("185790407156826113");
 
