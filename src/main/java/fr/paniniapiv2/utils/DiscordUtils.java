@@ -71,7 +71,7 @@ public class DiscordUtils {
 
                 break;
             default:
-                channel.sendMessage("Commande non reconnue");
+                //channel.sendMessage("Commande non reconnue");
                 break;
         }
     }
