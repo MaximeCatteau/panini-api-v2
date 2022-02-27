@@ -52,7 +52,7 @@ public class DiscordUtils {
                 List<String> playerCodes = this.codeService.getPlayerCodesByDiscordId(discordId);
                 String codesMessage = "";
 
-                if (playerCodes == null) {
+                if (playerCodes.size() == 0) {
                     codesMessage = "Pas de codes trouvés";
                 } else {
                     for (String code : playerCodes) {
