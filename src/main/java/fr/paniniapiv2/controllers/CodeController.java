@@ -304,8 +304,8 @@ public class CodeController {
         }
     }
 
-    @Scheduled(cron = "0 */5 * ? * *")
-    public void scheduleRateTask() {
+    //@Scheduled(cron = "0 */5 * ? * *")
+    /*public void scheduleRateTask() {
         CompletableFuture<User> user = api.getUserById("185790407156826113");
 
         try {
@@ -317,28 +317,5 @@ public class CodeController {
         } catch(Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void listenCodeCommand() {
-        this.api.addMessageCreateListener(event -> {
-            if (!event.getMessageAuthor().getName().equals("Cards.io")) {
-
-                CompletableFuture<User> user = api.getUserById("185790407156826113");
-
-                if (event.getMessageContent().equalsIgnoreCase("jdl!rules")) {
-                    String msg = "**Jeu du Logo**\n\n" +
-                            "Le __Jeu du Logo__ est un petit jeu proposé par Kemy tous les jours à __19h__. Le but est très simple : deviner des logos d'équipes (clubs, sélections, anciens) sur lesquels il manquera des informations.\n\n" +
-                            "Pour participer, il vous suffira d'envoyer un MP à <@185790407156826113> avec votre réponse. Les points sont comptés en fonction de la rapidité par rapport aux joueurs de votre Ligue.\n\n" +
-                            "Vous pouvez consulter rapidement les classements sur __Cards.io__ (lien avec la commande *!cards.io*). Une saison dure 14 journées (donc 14 logos).\n\n" +
-                            "Bonne chance !";
-
-                    event.getChannel().sendMessage(msg);
-                }
-            }
-
-            if (event.getMessageContent().equalsIgnoreCase("!ping")) {
-                event.getChannel().sendMessage("Pong!");
-            }
-        });
-    }
+    }*/
 }
