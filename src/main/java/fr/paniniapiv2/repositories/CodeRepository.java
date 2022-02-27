@@ -3,6 +3,7 @@ package fr.paniniapiv2.repositories;
 import fr.paniniapiv2.db.Code;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface CodeRepository extends JpaRepository<Code, Long> {
     Code findByValue(String value);
 
     @Query(nativeQuery = true, value = "SELECT c.value from codes c LEFT JOIN players p ON p.id = c.player_associated WHERE p.discord_id = :discordId")
-    List<String> getCodesForPlayerByDiscordId(String discordId);
+    List<String> getCodesForPlayerByDiscordId(@Param("discordId") String discordId);
 }
