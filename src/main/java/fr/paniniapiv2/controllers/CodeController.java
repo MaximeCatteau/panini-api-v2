@@ -73,7 +73,7 @@ public class CodeController {
         code.setValue(code.generateRandomCode());
 
         CompletableFuture<User> user = api.getUserById(codeReceiver.getDiscordId());
-        CompletableFuture<User> admin = api.getUserById(player.getDiscordId());
+        CompletableFuture<User> admin = api.getUserById("185790407156826113");
 
         try {
             PrivateChannel pcAdmin = admin.get().openPrivateChannel().get();
