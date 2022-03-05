@@ -104,11 +104,79 @@ public class LogoController {
     }
 
     @CrossOrigin
+    @GetMapping("/logo/league/2/a")
+    public ResponseEntity<List<LogoLadderResource>> getLeague2aLadder(@RequestParam String token, @RequestParam int seasonId) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
+
+        LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
+        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague2aLadder(currentSeason.getId());
+        List<LogoLadderResource> resource = new ArrayList<>();
+
+        for (LogoLadder ll : rawLadder) {
+            LogoLadderResource llr = new LogoLadderResource();
+
+            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setTotalPoints(ll.getTotalPoints());
+            llr.setDayPoints(ll.getDayPoints());
+            llr.setLogoGuessed(ll.getTotalGuessed());
+            llr.setStreak(ll.getStreak());
+            llr.setFastest(ll.getFastest());
+
+            PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
+
+            if (titleSelected != null) {
+                Title t = this.titleRepository.getById(titleSelected.getTitleId());
+                llr.setPlayerTitle(t.getLabel());
+                llr.setColor(t.getColor());
+            }
+
+            resource.add(llr);
+        }
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @GetMapping("/logo/league/2/b")
+    public ResponseEntity<List<LogoLadderResource>> getLeague2bLadder(@RequestParam String token, @RequestParam int seasonId) {
+        Player p = this.playerRepository.findByToken(token).orElseThrow();
+
+        LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
+        List<LogoLadder> rawLadder = this.logoLadderRepository.getLeague2bLadder(currentSeason.getId());
+        List<LogoLadderResource> resource = new ArrayList<>();
+
+        for (LogoLadder ll : rawLadder) {
+            LogoLadderResource llr = new LogoLadderResource();
+
+            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setTotalPoints(ll.getTotalPoints());
+            llr.setDayPoints(ll.getDayPoints());
+            llr.setLogoGuessed(ll.getTotalGuessed());
+            llr.setStreak(ll.getStreak());
+            llr.setFastest(ll.getFastest());
+
+            PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
+
+            if (titleSelected != null) {
+                Title t = this.titleRepository.getById(titleSelected.getTitleId());
+                llr.setPlayerTitle(t.getLabel());
+                llr.setColor(t.getColor());
+            }
+
+            resource.add(llr);
+        }
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
+    }
+
+    @CrossOrigin
     @GetMapping("/logo/daily")
     public ResponseEntity<List<DailyLogoLadderResource>> getDailyLadders(@RequestParam String token, @RequestParam int seasonId) {
         Player player = this.playerRepository.findByToken(token).orElseThrow();
 
-        int currentDayInSeason = this.logoSeasonRepository.findCurrentSeason().getCurrentDay();
+        LogoSeason logoSeason = this.logoSeasonRepository.findCurrentSeason();
+
+        int currentDayInSeason = logoSeason.getCurrentDay();
 
         List<DailyLogoLadderResource> dailyLogoLadderResourceList = new ArrayList<>();
 
@@ -117,6 +185,8 @@ public class LogoController {
             DailyLogoLadderResource dailyLogoLadderResource = new DailyLogoLadderResource();
             List<LogoDayResource> league1 = new ArrayList<>();
             List<LogoDayResource> league2 = new ArrayList<>();
+            List<LogoDayResource> league2a = new ArrayList<>();
+            List<LogoDayResource> league2b = new ArrayList<>();
 
             for (LogoDay ld : seasonAndDayLogo) {
                 LogoDayResource ldr = new LogoDayResource();
@@ -128,14 +198,22 @@ public class LogoController {
                 LogoLadder playerLadder = this.logoLadderRepository.findByLogoPlayerId(ld.getLogoPlayerId(), seasonId);
                 if (playerLadder.getLeague() == 1) {
                     league1.add(ldr);
-                } else if (playerLadder.getLeague() == 2) {
+                } else if (!logoSeason.getWithGroups() && playerLadder.getLeague() == 2) {
                     league2.add(ldr);
+                } else if (logoSeason.getWithGroups() && playerLadder.getLeague() == 2) {
+                    if (playerLadder.getLeagueGroup() == 1) {
+                        league2a.add(ldr);
+                    } else if (playerLadder.getLeagueGroup() == 2) {
+                        league2b.add(ldr);
+                    }
                 }
             }
 
             dailyLogoLadderResource.setDay(i);
             dailyLogoLadderResource.setLeague1(league1);
             dailyLogoLadderResource.setLeague2(league2);
+            dailyLogoLadderResource.setLeague2a(league2a);
+            dailyLogoLadderResource.setLeague2b(league2b);
 
             dailyLogoLadderResourceList.add(dailyLogoLadderResource);
         }

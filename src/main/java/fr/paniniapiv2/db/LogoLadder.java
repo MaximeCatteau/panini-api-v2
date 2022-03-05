@@ -18,6 +18,8 @@ public class LogoLadder {
 
     private Integer league;
 
+    private Integer leagueGroup;
+
     private Integer logoPlayerId;
 
     private Integer totalPoints;

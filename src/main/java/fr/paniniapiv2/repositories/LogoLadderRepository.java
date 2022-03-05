@@ -14,6 +14,12 @@ public interface LogoLadderRepository extends JpaRepository<LogoLadder,Integer> 
     @Query(nativeQuery = true, value = "SELECT * FROM logo_ladder WHERE league = 2 and season_id = :seasonId order by total_points DESC")
     List<LogoLadder> getLeague2Ladder(@Param("seasonId") int seasonId);
 
+    @Query(nativeQuery = true, value = "SELECT * FROM logo_ladder WHERE league = 2 AND season_id = :seasonId AND league_group = 1 ORDER BY total_points DESC")
+    List<LogoLadder> getLeague2aLadder(@Param("seasonId") int seasonId);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM logo_ladder WHERE league = 2 AND season_id = :seasonId AND league_group = 2 ORDER BY total_points DESC")
+    List<LogoLadder> getLeague2bLadder(@Param("seasonId") int seasonId);
+
     @Query(nativeQuery = true, value = "select * from logo_ladder where logo_player_id = :logoPlayerId and season_id = :seasonId")
     LogoLadder findByLogoPlayerId(@Param(value = "logoPlayerId") int logoPlayerId, @Param(value = "seasonId") int seasonId);
 }

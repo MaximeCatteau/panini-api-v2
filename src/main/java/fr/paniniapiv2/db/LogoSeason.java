@@ -19,4 +19,6 @@ public class LogoSeason {
     private String status;
 
     private int currentDay;
+
+    private Boolean withGroups;
 }
