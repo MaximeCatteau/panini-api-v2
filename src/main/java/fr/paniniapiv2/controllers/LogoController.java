@@ -4,6 +4,8 @@ import fr.paniniapiv2.db.*;
 import fr.paniniapiv2.repositories.*;
 import fr.paniniapiv2.resources.*;
 import org.apache.coyote.Response;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -37,9 +40,18 @@ public class LogoController {
     @Autowired
     private TitleRepository titleRepository;
 
+    /**
+     * DISCORD
+     * @param resource
+     * @return
+     */
+    DiscordApi api = new DiscordApiBuilder()
+            .setToken("OTEwMDg2MTQyNTgwMzY3Mzgw.YZNtxA.qZBFOb7Ro2yct4Ddv_AQAEYTs50")
+            .login().join();
+
     @CrossOrigin
     @GetMapping("/logo/league/1")
-    public ResponseEntity<List<LogoLadderResource>> getLeague1Ladder(@RequestParam String token, @RequestParam int seasonId) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague1Ladder(@RequestParam String token, @RequestParam int seasonId) throws ExecutionException, InterruptedException {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
         LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
@@ -48,13 +60,15 @@ public class LogoController {
 
         for (LogoLadder ll : rawLadder) {
             LogoLadderResource llr = new LogoLadderResource();
+            LogoPlayer logoPlayer = this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow();
 
-            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setLogoPlayerName(logoPlayer.getLogoPlayerName());
             llr.setTotalPoints(ll.getTotalPoints());
             llr.setDayPoints(ll.getDayPoints());
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
+            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -72,7 +86,7 @@ public class LogoController {
 
     @CrossOrigin
     @GetMapping("/logo/league/2")
-    public ResponseEntity<List<LogoLadderResource>> getLeague2Ladder(@RequestParam String token, @RequestParam int seasonId) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague2Ladder(@RequestParam String token, @RequestParam int seasonId) throws ExecutionException, InterruptedException {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
         LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
@@ -81,13 +95,15 @@ public class LogoController {
 
         for (LogoLadder ll : rawLadder) {
             LogoLadderResource llr = new LogoLadderResource();
+            LogoPlayer logoPlayer = this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow();
 
-            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setLogoPlayerName((logoPlayer.getLogoPlayerName()));
             llr.setTotalPoints(ll.getTotalPoints());
             llr.setDayPoints(ll.getDayPoints());
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
+            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -105,7 +121,7 @@ public class LogoController {
 
     @CrossOrigin
     @GetMapping("/logo/league/2/a")
-    public ResponseEntity<List<LogoLadderResource>> getLeague2aLadder(@RequestParam String token, @RequestParam int seasonId) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague2aLadder(@RequestParam String token, @RequestParam int seasonId) throws ExecutionException, InterruptedException {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
         LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
@@ -114,13 +130,15 @@ public class LogoController {
 
         for (LogoLadder ll : rawLadder) {
             LogoLadderResource llr = new LogoLadderResource();
+            LogoPlayer logoPlayer = this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow();
 
-            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setLogoPlayerName(logoPlayer.getLogoPlayerName());
             llr.setTotalPoints(ll.getTotalPoints());
             llr.setDayPoints(ll.getDayPoints());
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
+            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -138,7 +156,7 @@ public class LogoController {
 
     @CrossOrigin
     @GetMapping("/logo/league/2/b")
-    public ResponseEntity<List<LogoLadderResource>> getLeague2bLadder(@RequestParam String token, @RequestParam int seasonId) {
+    public ResponseEntity<List<LogoLadderResource>> getLeague2bLadder(@RequestParam String token, @RequestParam int seasonId) throws ExecutionException, InterruptedException {
         Player p = this.playerRepository.findByToken(token).orElseThrow();
 
         LogoSeason currentSeason = this.logoSeasonRepository.getById(seasonId);
@@ -147,13 +165,15 @@ public class LogoController {
 
         for (LogoLadder ll : rawLadder) {
             LogoLadderResource llr = new LogoLadderResource();
+            LogoPlayer logoPlayer = this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow();
 
-            llr.setLogoPlayerName(this.logoPlayerRepository.findById(ll.getLogoPlayerId()).orElseThrow().getLogoPlayerName());
+            llr.setLogoPlayerName(logoPlayer.getLogoPlayerName());
             llr.setTotalPoints(ll.getTotalPoints());
             llr.setDayPoints(ll.getDayPoints());
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
+            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 

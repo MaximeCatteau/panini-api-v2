@@ -17,4 +17,6 @@ public class LogoPlayer {
     private Long playerIdAssociated;
 
     private String logoPlayerName;
+
+    private String discordId;
 }

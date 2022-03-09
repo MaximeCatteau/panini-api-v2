@@ -16,4 +16,5 @@ public class LogoLadderResource {
     private int fastest;
     private String playerTitle;
     private String color;
+    private String profileImageUrl;
 }
