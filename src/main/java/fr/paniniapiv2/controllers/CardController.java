@@ -1,8 +1,6 @@
 package fr.paniniapiv2.controllers;
 
-import fr.paniniapiv2.PlayerResource;
 import fr.paniniapiv2.db.Card;
-import fr.paniniapiv2.db.Player;
 import fr.paniniapiv2.repositories.CardRepository;
 import fr.paniniapiv2.repositories.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
