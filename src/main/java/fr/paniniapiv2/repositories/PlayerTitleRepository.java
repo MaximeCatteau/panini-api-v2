@@ -19,4 +19,13 @@ public interface PlayerTitleRepository extends JpaRepository<PlayerTitle, Intege
 
     @Query(nativeQuery = true, value = "select * from player_title pt where player_id = :playerId and title_id = :titleId")
     PlayerTitle findByPlayerIdAndTitleId(@Param("playerId") Long playerId, @Param("titleId") int titleId);
+
+    @Query(nativeQuery = true, value = "select * from player_title where player_seeker_id = :playerSeekerId and selected is true;")
+    PlayerTitle getSelectedTitleByPlayerSeekerId(@Param("playerSeekerId") Integer playerSeekerId);
+
+    Boolean existsByPlayerSeekerId(Integer playerSeekerId);
+
+    Boolean existsByPlayerId(Long playerId);
+
+    Boolean existsByLogoPlayerId(Integer logoPlayerId);
 }

@@ -6,21 +6,15 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "playerTitle")
+@Table(name = "whoAmISeasonPlayer")
 @Getter
 @Setter
-public class PlayerTitle {
+public class WhoAmISeasonPlayer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Long playerId;
+    private Integer whoAmISeasonId;
 
-    private Integer logoPlayerId;
-
-    private Integer playerSeekerId;
-
-    private Boolean selected;
-
-    private Integer titleId;
+    private Integer whoAmIPlayerId;
 }
