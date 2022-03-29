@@ -229,8 +229,6 @@ public class WhoAmISeasonController {
         // Process streaks
         List<WhoAmIDay> currentDay = this.whoAmIDayRepository.findBySeasonIdAndDay(season.getId(), newDay);
 
-        this.processStreaks(currentDay, previousDay);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -278,29 +276,10 @@ public class WhoAmISeasonController {
 
         whoAmILadder.setDayPoints(whoAmIDay.getPoints());
         whoAmILadder.setTotalGuessed(whoAmILadder.getTotalGuessed() + 1);
-        whoAmILadder.setStreak(whoAmILadder.getStreak() + 1);
-
-        if (whoAmILadder.getStreak() % 3 == 0) {
-            whoAmILadder.setDayPoints(whoAmIDay.getPoints() + 4);
-            newPoints += 4;
-        }
-
         whoAmILadder.setTotalPoints(newPoints);
 
         this.whoAmILadderRepository.save(whoAmILadder);
     }
-
-    private void processStreaks(List<WhoAmIDay> current, List<WhoAmIDay> previous) {
-        for (WhoAmIDay whoAmIDay : previous) {
-            if (current.stream().noneMatch(whoAmIDay1 -> whoAmIDay1.getWhoAmIPlayerId() == whoAmIDay.getWhoAmIPlayerId())) {
-                WhoAmILadder whoAmILadder = this.whoAmILadderRepository.findByWhoAmIPlayerIdAndSeasonId(whoAmIDay.getWhoAmIPlayerId(), whoAmIDay.getSeasonId());
-                whoAmILadder.setStreak(0);
-                whoAmILadder.setDayPoints(0);
-                this.whoAmILadderRepository.save(whoAmILadder);
-            }
-        }
-    }
-
 
     private WhoAmIPlayer findByDiscordName(String name) throws ExecutionException, InterruptedException {
         List<WhoAmIPlayer> whoAmIPlayerList = this.whoAmIPlayerRepository.findAll();
