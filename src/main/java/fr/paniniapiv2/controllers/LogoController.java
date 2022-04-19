@@ -68,7 +68,7 @@ public class LogoController {
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
-            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
+            llr.setDiscordId(logoPlayer.getDiscordId());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -103,7 +103,7 @@ public class LogoController {
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
-            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
+            llr.setDiscordId(logoPlayer.getDiscordId());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -138,7 +138,7 @@ public class LogoController {
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
-            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
+            llr.setDiscordId(logoPlayer.getDiscordId());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
@@ -173,7 +173,7 @@ public class LogoController {
             llr.setLogoGuessed(ll.getTotalGuessed());
             llr.setStreak(ll.getStreak());
             llr.setFastest(ll.getFastest());
-            llr.setProfileImageUrl(this.api.getUserById(logoPlayer.getDiscordId()).get().getAvatar().getUrl().toString());
+            llr.setDiscordId(logoPlayer.getDiscordId());
 
             PlayerTitle titleSelected = this.playerTitleRepository.getSelectedTitleByLogoPlayerId(ll.getLogoPlayerId());
 
