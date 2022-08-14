@@ -1,18 +1,18 @@
 package fr.paniniapiv2;
 
+import fr.paniniapiv2.rp.services.FootballPlayerService;
+import fr.paniniapiv2.rp.services.MentalAttributesService;
+import fr.paniniapiv2.rp.services.PhysicalAttributesService;
+import fr.paniniapiv2.rp.services.TechnicalAttributesService;
 import fr.paniniapiv2.services.BanWordsService;
 import fr.paniniapiv2.services.CodeService;
 import fr.paniniapiv2.utils.BanWordsUtils;
 import fr.paniniapiv2.utils.DiscordUtils;
-import org.apache.catalina.core.ApplicationContext;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 public class PaniniApiV2Application {
@@ -23,9 +23,15 @@ public class PaniniApiV2Application {
 		ConfigurableApplicationContext applicationContext = SpringApplication.run(PaniniApiV2Application.class, args);
 
 		CodeService codeService = applicationContext.getBean(CodeService.class);
+		FootballPlayerService footballPlayerService = applicationContext.getBean(FootballPlayerService.class);
+		PhysicalAttributesService physicalAttributesService = applicationContext.getBean(PhysicalAttributesService.class);
+		MentalAttributesService mentalAttributesService = applicationContext.getBean(MentalAttributesService.class);
+		TechnicalAttributesService technicalAttributesService = applicationContext.getBean(TechnicalAttributesService.class);
+
 		BanWordsService banWordsService = applicationContext.getBean(BanWordsService.class);
 
-		DiscordUtils discordUtils = new DiscordUtils(codeService);
+		DiscordUtils discordUtils = new DiscordUtils(codeService, footballPlayerService, physicalAttributesService,
+				mentalAttributesService, technicalAttributesService);
 		BanWordsUtils banWordsUtils = new BanWordsUtils(banWordsService);
 
 		api.updateActivity("Cards.io");
